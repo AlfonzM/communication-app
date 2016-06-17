@@ -72,10 +72,25 @@ class ConversationRepository extends GenericRepository{
 					':conversation_sharp' => $conversation->conversation_sharp,
 					':conversation_speed' => $conversation->conversation_speed);
 				if($_query->execute($parameters)){
+					if(!isset($conversation->pepperTalk)){
+						return $conversation;
+					}
+
+					echo $conversation->conversation_id;
+
 					$conversation->pepperTalk->pepperTalk_conversation = $conversation->conversation_id;
 
 					$pepperTalkRepository = new PepperTalkRepository();
-					if($pepperTalkRepository->Update($conversation->pepperTalk)) {
+
+					$result = "";
+
+					if($conversation->pepperTalk->pepperTalk_id != null){
+						$result = $pepperTalkRepository->Update($conversation->pepperTalk);
+					} else {
+						$result = $pepperTalkRepository->Save($conversation->pepperTalk);
+					}
+
+					if($result) {
 						return $conversation;
 					} else {
 						return false;

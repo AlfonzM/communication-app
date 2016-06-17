@@ -113,7 +113,12 @@ class PepperTalkRepository extends GenericRepository{
 						foreach($pepperTalk->groups as $group){
 							$group->group_pepperTalkParent = $pepperTalk->pepperTalk_id;
 							$group->group_pepperParentConversation = $pepperTalk->pepperTalk_conversation;
-							$groupRepository->Update($group);
+
+							if($group->group_id != null){
+								$groupRepository->Update($group);
+							} else {
+								$groupRepository->Save($group);
+							}
 						}
 					}
 

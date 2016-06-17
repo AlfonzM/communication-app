@@ -104,15 +104,22 @@ class GroupRepository extends GenericRepository{
 			if($_query = $this->communication_db->prepare($query, array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY))){
 				$parameters = array(':group_id' => $group->group_id,
 					':group_pepperTalkParent' => $group->group_pepperTalkParent);
-				
+
 				if($_query->execute($parameters)){
 					// Also update the user replies
 					if(count($group->userReplies) > 0){
 
+						// echo count($group->userReplies);exit;
+
 						$userReplyRepository = new UserReplyRepository();
 						foreach($group->userReplies as $userReply){
 							$userReply->userReply_group = $group->group_id;
-							$userReplyRepository->Update($userReply);
+
+							if($userReply->userReply_id != null){
+								$userReplyRepository->Update($userReply);
+							} else {
+								$userReplyRepository->Save($userReply);
+							}
 						}
 					}
 
