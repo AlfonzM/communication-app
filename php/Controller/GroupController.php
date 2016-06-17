@@ -1,53 +1,34 @@
 <?php
-	require_once('../DataAccess/GroupRepository.php');
+require_once('DataAccess/GroupRepository.php');
 
-	$transaction = $_POST['transaction'];
+/* Get groups of conversations */
+$app->get('/conversations/{id}/groups', function($request){
+	$groupRepository = new GroupRepository();
 
-	if(!empty($transaction)){
+	$select_properties = [
+		'`group_id`',
+		'`group_pepperTalkParent`',
+		'`pepperTalk_text`',
+		'`pepperTalk_conversation`'
+	];
 
-		$groupRepository = new GroupRepository();
+	$arguments = "`group_dis` = 1";
 
-		$group_id = $_POST['group_id'];
-		$group_pepperTalkParent = $_POST['group_pepperTalkParent'];
+	$conversationId = $request->getAttribute('id');
 
-		if($transaction == "select"){
-			$select_properties = array('`group_id`',
-										'`group_pepperTalkParent`');
+	$result = $groupRepository->GetListByConversationId($conversationId, $select_properties, $arguments, null);
 
-			$arguments = "`group_dis` = 1";
+	pretty_json_encode($result);
+});
 
-			$result = $groupRepository->GetList($select_properties, $arguments);
+/* Get groups of by pepper talk ID */
+$app->get('/peppertalks/{id}/groups', function($request){
+	$pepperTalkId = $request->getAttribute('id');
+	$groupRepository = new GroupRepository();
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "insert"){
+	$result = $groupRepository->GetListByPepperTalkId($pepperTalkId);
 
-			$group = new Group();
-			$group->group_pepperTalkParent = $group_pepperTalkParent;
+	pretty_json_encode($result);
+});
 
-			$result = $groupRepository->Save($group);
-
-			echo json_encode($result);
-		}
-		elseif($transaction == "update"){
-
-			$group = new Group();
-			$group->group_id = $group_id;
-			$group->group_pepperTalkParent = $group_pepperTalkParent;
-
-			$result = $groupRepository->Update($group);
-
-			echo json_encode($result);
-		}
-		elseif($transaction == "delete"){
-
-			$result = $groupRepository->Delete($group_id);
-
-			echo json_encode($result);
-		}
-		else{
-			echo json_encode("Invalid action!");
-		}
-
-	}
 ?>

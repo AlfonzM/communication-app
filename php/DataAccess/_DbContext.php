@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php';
+
 class DbContext{
 	public $account_db;
 	public $communication_db;
@@ -17,6 +17,10 @@ class DbContext{
 			$this->communication_db = new PDO("mysql:host=$host;dbname=communication_db", 
 				$username, $password, 
 				array(PDO::ATTR_PERSISTENT => true));
+
+			// Enable this line to print errors of last operation
+			// Use:	$this->communication_db->errorInfo()
+			$this->communication_db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING );
 
 			if ($this->account_db && $this->communication_db){  
 				date_default_timezone_set('Asia/Tokyo');

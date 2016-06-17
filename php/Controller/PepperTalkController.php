@@ -1,64 +1,58 @@
 <?php
-	require_once('../DataAccess/PepperTalkRepository.php');
+require_once('DataAccess/PepperTalkRepository.php');
 
-	$transaction = $_POST['transaction'];
+/* Get all pepper talks of conversation ID */
+$app->get('/conversations/{id}/peppertalks', function($request){
+	$pepperTalkRepository = new PepperTalkRepository();
 
-	if(!empty($transaction)){
+	$conversation_id = $request->getAttribute('id');
 
-		$pepperTalkRepository = new PepperTalkRepository();
+	$result = $pepperTalkRepository->GetList([], "pepperTalk_conversation=$conversation_id");
 
-		$pepperTalk_id = $_POST['pepperTalk_id'];
-		$pepperTalk_group = $_POST['pepperTalk_group'];
-		$pepperTalk_conversation = $_POST['pepperTalk_conversation'];
-		$pepperTalk_text = $_POST['pepperTalk_text'];
-		$pepperTalk_output = $_POST['pepperTalk_output'];
+	pretty_json_encode($result);
+});
 
-		if($transaction == "select"){
-			$select_properties = array('`pepperTalk_id`',
-										'`pepperTalk_group`',
-										'`pepperTalk_text`',
-										'`pepperTalk_output`');
+/* Get a pepper talk by id */
+$app->get('/peppertalks/{id}', function($request) {
+	$pepperTalkRepository = new PepperTalkRepository();
 
-			$arguments = "`pepperTalk_dis` = 1";
+	$pepperTalkId = $request->getAttribute('id');
 
-			$result = $pepperTalkRepository->GetList($select_properties, $arguments);
+	$pepperTalk = $pepperTalkRepository->GetOne([], "pepperTalk_id=$pepperTalkId");
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "insert"){
+	$groupRepository = new GroupRepository();
 
-			$pepperTalk = new pepperTalk();
-			$pepperTalk->pepperTalk_group = $pepperTalk_group;
-			$pepperTalk->pepperTalk_conversation = $pepperTalk_conversation;
-			$pepperTalk->pepperTalk_text = $pepperTalk_text;
-			$pepperTalk->pepperTalk_output = $pepperTalk_output;
+	$pepperTalk['groups'] = $groupRepository->GetListByPepperTalkId($pepperTalk['pepperTalk_id']);
 
-			$result = $pepperTalkRepository->Save($pepperTalk);
+	pretty_json_encode($pepperTalk);
+});
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "update"){
+/* Edit a pepper talk */
+$app->put('/peppertalks/{id}', function($request){
+	$pepperTalkRepository = new PepperTalkRepository();
 
-			$pepperTalk = new pepperTalk();
-			$pepperTalk->pepperTalk_id = $pepperTalk_id;
-			$pepperTalk->pepperTalk_group = $pepperTalk_group;
-			$pepperTalk->pepperTalk_conversation = $pepperTalk_conversation;
-			$pepperTalk->pepperTalk_text = $pepperTalk_text;
-			$pepperTalk->pepperTalk_output = $pepperTalk_output;
+	$pepperTalk = new PepperTalk();
 
-			$result = $pepperTalkRepository->Update($pepperTalk);
+	$pepperTalk->$peppeTalk_id = $request->getAttribute('id');
+	$pepperTalk->pepperTalk_group = $request->getParsedBody()['pepperTalk_group'];
+	$pepperTalk->pepperTalk_text = $request->getParsedBody()['pepperTalk_text'];
+	$pepperTalk->pepperTalk_output = $request->getParsedBody()['pepperTalk_output'];
+	$pepperTalk->pepperTalk_dis = $request->getParsedBody()['pepperTalk_dis'];
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "delete"){
+	$peppertalkId = $request->getAttribute('id');
+	$result = $pepperTalkRepository->Update($pepperTalk);
 
-			$result = $pepperTalkRepository->Delete($pepperTalk_id);
+	pretty_json_encode($result);
+});
 
-			echo json_encode($result);
-		}
-		else{
-			echo json_encode("Invalid action!");
-		}
+/* Delete a peppertalk */
+$app->delete('/peppertalks/{id}', function($request) {
+	$pepperTalkRepository = new PepperTalkRepository();
 
-	}
+	$peppertalkId = $request->getAttribute('id');
+	$result = $pepperTalkRepository->Delete($peppertalkId);
+
+	pretty_json_encode($result);
+});
+
 ?>

@@ -22,7 +22,7 @@
 			$context->Connect();
 		}
 
-		public function GetList(array $select_properties, $arguments = ""){
+		public function GetList(array $select_properties, $arguments = "", $options = ""){
 			try{
 				$count = count($select_properties);
 				
@@ -35,11 +35,19 @@
 					$query = "SELECT * FROM `$this->entity`";
 				}
 
+				if(!empty($options)){
+					$query .= " $options";
+				}
+
 				if(!empty($arguments)){
 					$query .= " WHERE $arguments";
 				}
 
 				$query .= ";";
+
+				// echo "\n";
+				// echo $query;
+				// echo "\n";
 
 				if($_query = $this->communication_db->prepare($query)){
 					$_query->execute();
@@ -50,6 +58,7 @@
 						array_push($pepperTalk_array, $result);
 					}
 
+					// var_dump($pepperTalk_array);
 					return $pepperTalk_array;
 				}
 				else{
@@ -61,7 +70,7 @@
 			}
 		}
 
-		public function GetOne(array $select_properties, $arguments = ""){
+		public function GetOne(array $select_properties, $arguments = "", $options =""){
 			try{
 				$count = count($select_properties);
 				
@@ -74,6 +83,10 @@
 					$query = "SELECT * FROM `$this->entity`";
 				}
 
+				if(!empty($options)){
+					$query .= " $options";
+				}
+
 				if(!empty($arguments)){
 					$query .= " WHERE $arguments";
 				}
@@ -83,13 +96,11 @@
 				if($_query = $this->communication_db->prepare($query)){
 					$_query->execute();
 
-					$pepperTalk_array = array();
-
 					while($result = $_query->fetch(PDO::FETCH_ASSOC)){
-						array_push($pepperTalk_array, $result);
+						return $result;
 					}
 
-					return $pepperTalk_array;
+					return [];
 				}
 				else{
 					throw new Exception("Error. Check parameters");
