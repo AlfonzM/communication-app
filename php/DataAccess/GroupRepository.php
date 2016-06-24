@@ -22,7 +22,6 @@ class GroupRepository extends GenericRepository{
 
 					// Also save the user replies
 					if(count($group->userReplies) > 0){
-
 						$userReplyRepository = new UserReplyRepository();
 						foreach($group->userReplies as $userReply){
 							$userReply->userReply_group = $group->group_id;
@@ -31,7 +30,7 @@ class GroupRepository extends GenericRepository{
 					}
 
 					// Save the peppertalk
-					if(isset($group->pepperTalk)){
+					if(isset($group->pepperTalk) && $group->pepperTalk->pepperTalk_id == null){
 						$pepperTalkRepository = new PepperTalkRepository();
 						$group->pepperTalk->pepperTalk_group = $group->group_id;
 						$group->pepperTalk->pepperTalk_conversation = $group->group_pepperParentConversation;
@@ -78,12 +77,12 @@ class GroupRepository extends GenericRepository{
 			foreach($groups as $key => $group){
 				$groupId = $group['group_id'];
 				// Get the user replies of group
-				$userReplies = $userReplyRepository->GetList([], "userReply_group=$groupId");
+				$userReplies = $userReplyRepository->GetList([], "userReply_group=$groupId AND userReply_dis = 1");
 
 				$groups[$key]['userReplies'] = $userReplies;
 
 				// Get the peppertalk of group
-				$pepperTalkOfGroup = $pepperTalkRepository->GetOneByGroupId($group['group_id']);
+				$pepperTalkOfGroup = $pepperTalkRepository->GetOneByGroupId($group['group_id'], [], "", "", false);
 				$groups[$key]['pepperTalk'] = [];
 
 				if($pepperTalkOfGroup) {
@@ -113,11 +112,11 @@ class GroupRepository extends GenericRepository{
 
 						$userReplyRepository = new UserReplyRepository();
 						foreach($group->userReplies as $userReply){
-							$userReply->userReply_group = $group->group_id;
 
 							if($userReply->userReply_id != null){
 								$userReplyRepository->Update($userReply);
 							} else {
+								$userReply->userReply_group = $group->group_id;
 								$userReplyRepository->Save($userReply);
 							}
 						}
@@ -126,9 +125,14 @@ class GroupRepository extends GenericRepository{
 					// Update the peppertalk
 					if(isset($group->pepperTalk)){
 						$pepperTalkRepository = new PepperTalkRepository();
-						$group->pepperTalk->pepperTalk_group = $group->group_id;
-						$group->pepperTalk->pepperTalk_conversation = $group->group_pepperParentConversation;
-						$pepperTalkRepository->Update($group->pepperTalk);
+
+						if($group->pepperTalk->pepperTalk_id != null) {
+							$pepperTalkRepository->Update($group->pepperTalk);
+						} else {
+							$group->pepperTalk->pepperTalk_group = $group->group_id;
+							$group->pepperTalk->pepperTalk_conversation = $group->group_pepperParentConversation;
+							$pepperTalkRepository->Save($group->pepperTalk);
+						}
 					}
 
 					return $group;

@@ -1,53 +1,76 @@
 <?php
-	require_once('../DataAccess/TriggerRepository.php');
+require_once('DataAccess/TriggerRepository.php');
 
-	$transaction = $_POST['transaction'];
+$app->get('/triggers', function ($request) {
+	$triggerRepository = new TriggerRepository();
 
-	if(!empty($transaction)){
+	$result = [];
 
-		$triggerRepository = new TriggerRepository();
+	$result = $triggerRepository->GetList([], "`trigger_dis` = 1");
 
-		$trigger_id = $_POST['trigger_id'];
-		$trigger_name = $_POST['trigger_name'];
+	pretty_json_encode($result);
+});
 
-		if($transaction == "select"){
-			$select_properties = array('`trigger_id`',
-										'`trigger_name`');
+$app->get('/triggers/{id}', function($request){
+	$triggerRepository = new TriggerRepository();
 
-			$arguments = "`trigger_dis` = 1";
+	$result = [];
 
-			$result = $triggerRepository->GetList($select_properties, $arguments);
+	$arguments = "`trigger_dis` = 1 AND `trigger_id`=" . $request->getAttribute('id');
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "insert"){
+	$result = $triggerRepository->GetOne([], $arguments);
 
-			$trigger = new Trigger();
-			$trigger->trigger_name = $trigger_name;
+	pretty_json_encode($result);
+});
 
-			$result = $triggerRepository->Save($trigger);
+// $transaction = $_POST['transaction'];
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "update"){
+// if(!empty($transaction)){
 
-			$trigger = new Trigger();
-			$trigger->trigger_id = $trigger_id;
-			$trigger->trigger_name = $trigger_name;
+// 	$triggerRepository = new TriggerRepository();
 
-			$result = $triggerRepository->Update($trigger);
+// 	$trigger_id = $_POST['trigger_id'];
+// 	$trigger_name = $_POST['trigger_name'];
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "delete"){
+// 	if($transaction == "select"){
+// 		$select_properties = array('`trigger_id`',
+// 			'`trigger_name`');
 
-			$result = $triggerRepository->Delete($trigger_id);
+// 		$arguments = "`trigger_dis` = 1";
 
-			echo json_encode($result);
-		}
-		else{
-			echo json_encode("Invalid action!");
-		}
+// 		$result = $triggerRepository->GetList($select_properties, $arguments);
 
-	}
+// 		echo json_encode($result);
+// 	}
+// 	elseif($transaction == "insert"){
+
+// 		$trigger = new Trigger();
+// 		$trigger->trigger_name = $trigger_name;
+
+// 		$result = $triggerRepository->Save($trigger);
+
+// 		echo json_encode($result);
+// 	}
+// 	elseif($transaction == "update"){
+
+// 		$trigger = new Trigger();
+// 		$trigger->trigger_id = $trigger_id;
+// 		$trigger->trigger_name = $trigger_name;
+
+// 		$result = $triggerRepository->Update($trigger);
+
+// 		echo json_encode($result);
+// 	}
+// 	elseif($transaction == "delete"){
+
+// 		$result = $triggerRepository->Delete($trigger_id);
+
+// 		echo json_encode($result);
+// 	}
+// 	else{
+// 		echo json_encode("Invalid action!");
+// 	}
+
+// }
+
 ?>

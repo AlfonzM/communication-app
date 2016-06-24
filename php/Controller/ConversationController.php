@@ -3,23 +3,53 @@ require_once('DataAccess/ConversationRepository.php');
 
 // TODO: check authorization here and get client ID
 
+$app->get('/test', function($request){
+	$conversationRepository = new ConversationRepository();
+
+	pretty_json_encode($conversationRepository->GetList([], "`conversation_id`=1"));
+});
+
 /* Get all conversations */
 $app->get('/conversations', function ($request) {
 	$conversationRepository = new ConversationRepository();
 
-	$select_properties = array('`conversation_id`',
-		'`conversation_title`',
-		'`conversation_trigger`',
-		'`pepperTalk_id`',
-		'`pepperTalk_text`'
-	);
+	$result = [];
 
-	$arguments = "`conversation_dis` = 1";
+	if(isset($_GET['trigger'])) {
+		$trigger = $_GET['trigger'];
+		$arguments = "`conversation_dis` = 1 AND `conversation_trigger` = $trigger";
 
-	$options = "LEFT JOIN pepperTalk_tb ON conversation_id=pepperTalk_conversation";
-	$arguments = "pepperTalk_group = 0 OR pepperTalk_group IS NULL";
+		$conversationsWithTrigger = $conversationRepository->GetList(['conversation_id'], $arguments);
 
-	$result = $conversationRepository->GetList($select_properties, $arguments, $options);
+		foreach($conversationsWithTrigger as $convo){
+			$result[] = $conversationRepository->GetOne([], "conversation_id=" . $convo['conversation_id']);
+		}
+	}
+	else {
+		$arguments = "`conversation_dis` = 1";
+
+		$complete = 1;
+		$select_properties = [];
+
+		if(isset($_GET['complete'])){
+			$complete = $_GET['complete'];
+		}
+
+		if($complete == 1){
+			$result = $conversationRepository->GetCollection([], $arguments);
+		} else {
+			$select_properties = [
+				'`conversation_id`',
+				'`conversation_title`',
+				'`conversation_trigger`',
+				'`conversation_priority`',
+				'`conversation_dialogFile`',
+				'`conversation_language`',
+				'`conversation_client`'
+			];
+			$result = $conversationRepository->GetList($select_properties, $arguments);
+		}
+	}
 
 	pretty_json_encode($result);
 });
@@ -53,12 +83,8 @@ $app->post('/conversations', function($request) {
 $app->put('/conversations/{id}', function($request){
 	$conversationRepository = new ConversationRepository();
 
-	$arguments = "`conversation_dis` = 1";
-
 	$conversation = new Conversation($request->getParsedBody());
-
-	$conversation_id = $request->getAttribute('id');
-	$conversation->conversation_id = $conversation_id;
+	$conversation->conversation_id = $request->getAttribute('id');
 
 	$result = $conversationRepository->Update($conversation);
 

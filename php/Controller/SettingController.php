@@ -1,53 +1,73 @@
 <?php
-	require_once('../DataAccess/SettingRepository.php');
+require_once('DataAccess/SettingRepository.php');
 
-	$transaction = $_POST['transaction'];
+$app->get('/settings', function ($request) {
+	$settingRepository = new SettingRepository();
 
-	if(!empty($transaction)){
+	$result = [];
 
-		$settingRepository = new SettingRepository();
+	$result = $settingRepository->GetList([], "`setting_dis` = 1");
 
-		$setting_id = $_POST['setting_id'];
-		$setting_choose = $_POST['setting_choose'];
+	pretty_json_encode($result);
+});
 
-		if($transaction == "select"){
-			$select_properties = array('`setting_id`',
-										'`setting_choose`');
+$app->put('/settings', function($request) {
+	$setting = new Setting($request->getParsedBody());
 
-			$arguments = "`setting_dis` = 1";
+	$settingRepository = new SettingRepository();
+	$result = $settingRepository->Update($setting);
 
-			$result = $settingRepository->GetList($select_properties, $arguments);
+	pretty_json_encode($result);
+});
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "insert"){
 
-			$setting = new Setting();
-			$setting->setting_choose = $setting_choose;
+// $transaction = $_POST['transaction'];
 
-			$result = $settingRepository->Save($setting);
+// if(!empty($transaction)){
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "update"){
+// 	$settingRepository = new SettingRepository();
 
-			$setting = new Setting();
-			$setting->setting_id = $setting_id;
-			$setting->setting_choose = $setting_choose;
+// 	$setting_id = $_POST['setting_id'];
+// 	$setting_choose = $_POST['setting_choose'];
 
-			$result = $settingRepository->Update($setting);
+// 	if($transaction == "select"){
+// 		$select_properties = array('`setting_id`',
+// 			'`setting_choose`');
 
-			echo json_encode($result);
-		}
-		elseif($transaction == "delete"){
+// 		$arguments = "`setting_dis` = 1";
 
-			$result = $settingRepository->Delete($setting_id);
+// 		$result = $settingRepository->GetList($select_properties, $arguments);
 
-			echo json_encode($result);
-		}
-		else{
-			echo json_encode("Invalid action!");
-		}
+// 		echo json_encode($result);
+// 	}
+// 	elseif($transaction == "insert"){
 
-	}
+// 		$setting = new Setting();
+// 		$setting->setting_choose = $setting_choose;
+
+// 		$result = $settingRepository->Save($setting);
+
+// 		echo json_encode($result);
+// 	}
+// 	elseif($transaction == "update"){
+
+// 		$setting = new Setting();
+// 		$setting->setting_id = $setting_id;
+// 		$setting->setting_choose = $setting_choose;
+
+// 		$result = $settingRepository->Update($setting);
+
+// 		echo json_encode($result);
+// 	}
+// 	elseif($transaction == "delete"){
+
+// 		$result = $settingRepository->Delete($setting_id);
+
+// 		echo json_encode($result);
+// 	}
+// 	else{
+// 		echo json_encode("Invalid action!");
+// 	}
+
+// }
 ?>

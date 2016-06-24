@@ -18,7 +18,11 @@ class UserReplyRepository extends GenericRepository{
 				$parameters = array(':userReply_group' => $userReply->userReply_group,
 					':userReply_answer' => $userReply->userReply_answer,
 					':userReply_dis' => 1);
-				return $_query->execute($parameters);
+				if($_query->execute($parameters)){
+					$userReply->userReply_id = $this->communication_db->lastInsertId();
+
+					return $userReply;
+				}
 			}
 			else{
 				throw new Exception('Failed');

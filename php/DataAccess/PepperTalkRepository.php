@@ -65,7 +65,7 @@ class PepperTalkRepository extends GenericRepository{
 		return $result;
 	}
 
-	public function GetOneByGroupId($groupId, $select_properties = [], $arguments = "", $options = ""){
+	public function GetOneByGroupId($groupId, $select_properties = [], $arguments = "", $options = "", $nested = true){
 		if(isset($groupId)){
 			if($arguments != ""){
 				$arguments .= " AND ";
@@ -78,12 +78,14 @@ class PepperTalkRepository extends GenericRepository{
 			if(count($result) > 0){
 				$pepperTalk = $result[0];
 
-				$groupRepository = new GroupRepository();
-				$groupResults = $groupRepository->GetListByPepperTalkId($pepperTalk['pepperTalk_id']);
+				// if($nested){
+					$groupRepository = new GroupRepository();
+					$groupResults = $groupRepository->GetListByPepperTalkId($pepperTalk['pepperTalk_id']);
 
-				if(count($groupResults > 0)) {
-					$pepperTalk['groups'] = $groupResults;
-				}
+					if(count($groupResults > 0)) {
+						$pepperTalk['groups'] = $groupResults;
+					}
+				// }
 
 				return $pepperTalk;
 			}
@@ -105,11 +107,11 @@ class PepperTalkRepository extends GenericRepository{
 					':pepperTalk_dis' => $pepperTalk->pepperTalk_dis);
 
 				if($_query->execute($parameters)){
-					// If peppertalk has group/s, also update them
+					// If peppertalk has groups, update each group
 					if(count($pepperTalk->groups) > 0) {
 						$groupRepository = new GroupRepository();
 
-						// Assign pepperTalkParent id for each group and update each
+						// Assign pepperTalkParent id for each group and update/save each
 						foreach($pepperTalk->groups as $group){
 							$group->group_pepperTalkParent = $pepperTalk->pepperTalk_id;
 							$group->group_pepperParentConversation = $pepperTalk->pepperTalk_conversation;

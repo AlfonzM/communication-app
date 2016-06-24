@@ -45,7 +45,6 @@
 
 				$query .= ";";
 
-				// echo "\n";
 				// echo $query;
 				// echo "\n";
 
@@ -92,6 +91,9 @@
 				}
 
 				$query .= " LIMIT 1;";
+
+				// echo $query;
+				// echo "\n";
 
 				if($_query = $this->communication_db->prepare($query)){
 					$_query->execute();

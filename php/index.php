@@ -19,6 +19,8 @@ require 'Controller/PepperTalkController.php';
 require 'Controller/ConversationController.php';
 require 'Controller/GroupController.php';
 require 'Controller/UserReplyController.php';
+require 'Controller/TriggerController.php';
+require 'Controller/SettingController.php';
 
 $app->run();
 

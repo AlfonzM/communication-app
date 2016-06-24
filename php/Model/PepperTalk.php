@@ -25,5 +25,13 @@ class PepperTalk{
 			}
 		}
 	}
+
+	public function getGroups() {
+		$groupRepository = new GroupRepository();
+
+		$this->groups = $groupRepository->GetListByPepperTalkId($this->pepperTalk_id);
+
+		return $this->groups;
+	}
 }
 ?>
