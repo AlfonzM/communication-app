@@ -43,6 +43,8 @@ $app->get('/conversations', function ($request) {
 				'`conversation_title`',
 				'`conversation_trigger`',
 				'`conversation_priority`',
+				'`conversation_sharp`',
+				'`conversation_speed`',
 				'`conversation_dialogFile`',
 				'`conversation_language`',
 				'`conversation_client`'

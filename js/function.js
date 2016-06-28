@@ -1,6 +1,24 @@
 var apiUrl = 'http://localhost:8888/communication_web';
 
+function Test(){
+	this.id = 0;
+	this.text = "hi";
+	this.words = ['he', 'lo', 'world'];
+
+	this.getText = function(){
+		return this.text;
+	}
+}
+
 $(document).ready(function(){
+	// var test = new Test();
+	// console.log(test);
+	// test = Object.assign({"id":3, "text":'qwer'});
+	// test.words = ['qwe', '123'];
+
+	// console.log(test);
+	// console.log(JSON.stringify(test));
+
 	getConversationList();
 	// getConversation(1);
 	// editConversation();
@@ -10,20 +28,21 @@ $(document).ready(function(){
 function getConversationList(){
 	$.ajax({
 		url: apiUrl + '/php/conversations',
-	    // data: 'transaction=edit',
-	    type: 'GET',
-	    dataType: 'json',
-	    // async: true,
-	    // cache: false,
-	    success: function(conversations) {
-	    	// alert(conversations[0].conversation_title);
-	    	/* Success code */
-	    	// alert(data.conversation[0].name);
+		type: 'GET',
+		dataType: 'json',
+		success: function(conversations) {
 
-	    	for(var id in conversations){
-	    		var convo = conversations[id];
-	    		console.log(convo.conversation_title + " " + convo.conversation_id);
+    		// Add all Conversations to collection
+    		for(var index in conversations){
+    			var convo = conversations[index];
+
+    			var newConvo = new Conversation(convo);
+    			conversationCollection.push(newConvo);
+    			break;
 	    	}
+	    	console.log(JSON.stringify(conversationCollection));
+
+	    	// conversationCollection[0].toJson();
 	    },
 	    error: function(e) {
 	    	console.log(e);
@@ -73,9 +92,9 @@ function createConversation(){
 
 	$.ajax({
 		url: apiUrl + '/php/conversations',
-	    data: convo,
-	    type: 'POST',
-	    dataType: 'json',
+		data: convo,
+		type: 'POST',
+		dataType: 'json',
 	    // async: true,
 	    // cache: false,
 	    success: function(data) {
